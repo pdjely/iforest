@@ -10,15 +10,15 @@ iForest = function(X,
                    ntree = 100,
                    max_samples = 256)
 {
-  if (class(X) == 'matrix')
-    X = as.data.frame(X)
+  if (class(X) != 'matrix')
+    X = as.matrix(X)
   if (nrow(X) < 256)
     max_samples = nrow(X)
 
   forest = lapply(1:ntree, function(.) {
     # shuffle and sample
-    X = dplyr::sample_frac(X, size = 1)
-    x_samp = dplyr::sample_n(X, size = max_samples, replace = FALSE)
+    X = X[sample.int(nrow(X)), ]
+    x_samp = X[sample.int(max_samples), ]
     iTree(x_samp)
   })
 
@@ -42,11 +42,12 @@ validate_iforest = function() {
   NULL
 }
 
+
 # Methods
 
 predict.iForest = function(iforest, X) {
-  if (class(X) == 'matrix')
-    X = as.data.frame(X)
+  if (class(X) != 'matrix')
+    X = as.matrix(X)
 
   n_instances = iforest$max_samples
 

@@ -40,9 +40,8 @@ new_itree_node = function(X,
                           type='internal')
 {
   # base case: exceeded height limit or out of data or all rows same
-  # TODO: the third check is possibly very slow or memory-intensive
   if (current_height >= height_limit || nrow(X) <= 1 ||
-      sum(sapply(X, function(.) min(.) == max(.))) == ncol(X) ) {
+      sum(apply(X, 2, function(.) min(.) == max(.))) == ncol(X) ) {
     node = list(
       n_components = nrow(X),
       node_level = current_height,
@@ -59,7 +58,7 @@ new_itree_node = function(X,
   q = NULL
   retry_count = 0
   while (retry_count < 3) {
-    q = names(X)[runif(1, min=1, max=ncol(X) + 1)]
+    q = floor(runif(1, min=1, max=ncol(X) + 1))
     p = runif(1, min=min(X[, q]), max=(X[, q] + 1))
 
     # try a different attribute if zero variance
@@ -77,10 +76,10 @@ new_itree_node = function(X,
   node = list(
     n_components = nrow(X),
     node_level = current_height + 1,
-    left = new_itree_node(X[left_ind, ],
+    left = new_itree_node(X[left_ind, , drop=FALSE],
                           height_limit,
                           current_height + 1),
-    right = new_itree_node(X[right_ind, ],
+    right = new_itree_node(X[right_ind, , drop=FALSE],
                            height_limit,
                            current_height + 1),
     split_attr = q,

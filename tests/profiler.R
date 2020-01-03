@@ -25,3 +25,4 @@ profile_predict_forest = function(iforest, data) {
 #'     index data array with [[]] instead of dataframe: 17660 ms
 #'   - Use vapply instead of sapply in return of predict.iForest: 16140
 #'   - Change $ to [[]] in 'external' conditional: 17600
+#'   - Convert data frame to matrix: 8450
