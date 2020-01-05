@@ -34,7 +34,8 @@ iForest = function(X,
   ifor = list(
     forest = forest,
     ntree = ntree,
-    max_samples = max_samples
+    max_samples = max_samples,
+    n_features = ncol(X)
   )
 
   class(ifor) = 'iForest'
@@ -44,9 +45,25 @@ iForest = function(X,
 
 # Methods
 
+
+#' Predict outliers using isolation forest
+#'
+#' @param iforest iForest object, trained iForest
+#' @param X matrix, examples to classify
+#' @return vector of outlier probability, such that:
+#'     0: not an outlier
+#'     1: outlier
+#'     all 0.5: no clear outlier
+#' @export
 predict.iForest = function(iforest, X) {
   if (class(X) != 'matrix')
     X = as.matrix(X)
+
+  if (ncol(X) != iforest$n_features) {
+    msg = glue::glue('Input matrix contains {ncol(X)} features but ',
+                     'iforest trained with {iforest$n_features} features')
+    stop(msg)
+  }
 
   n_instances = iforest$max_samples
 
@@ -64,6 +81,8 @@ predict.iForest = function(iforest, X) {
 }
 
 
+#' Print iForest information
+#' @export
 print.iForest = function(iforest) {
   txt = glue::glue('iForest with {iforest$ntree} trees')
   cat(txt)

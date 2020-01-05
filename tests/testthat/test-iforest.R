@@ -26,6 +26,13 @@ test_that('Forest does not contain nulls', {
   expect_false(all(sapply(forest$forest, is.null)))
 })
 
+test_that('Forest does not accept different number of features', {
+  data1 = gen_norm_data(100, 10)
+  forest = iForest(data1)
+  data2 = gen_norm_data(100, 9)
+  expect_error(predict(forest, data2), regexp = 'iforest trained with')
+})
+
 test_that('Forest finds obvious outlier', {
   # data generation based on:
   #   # https://www.kaggle.com/norealityshows/outlier-detection-with-isolation-forest-in-rs
