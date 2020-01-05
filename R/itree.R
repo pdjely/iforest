@@ -80,7 +80,7 @@ new_itree_node = function(X,
   retry_count = 0
   while (retry_count < 3) {
     q = floor(runif(1, min=1, max=ncol(X) + 1))
-    p = runif(1, min=min(X[, q]), max=(X[, q] + 1))
+    p = runif(1, min=min(X[, q]), max=max(X[, q]))
 
     # try a different attribute if zero variance
     if (min(X[, q] != max(X[, q])))
