@@ -37,17 +37,22 @@ test_that('Forest finds obvious outlier', {
   # data generation based on:
   #   # https://www.kaggle.com/norealityshows/outlier-detection-with-isolation-forest-in-rs
 
-  # Generate normal dis data set
+  # Generate normally distributed dataset (low variance) and grow forest
   n = 500
   Var1 = rnorm(n, 0, 0.05)
   Var2 = rnorm(n, 0, 0.05)
-
   data = data.frame(Var1, Var2)
-
-  # change point 200 to be outlier
-  data[200, ] = c(1, 2)
-
   forest = iForest(data)
-  ypred = predict(forest, data)
-  expect_gt(ypred[200], 0.7)
+
+  # create new dataset with major outliers
+  out_data = data.frame(Var1 = c(1, -1), Var2 = c(2, 2))
+  ypred = predict(forest, out_data)
+  expect_true(all(ypred > 0.7))
+})
+
+test_that('Forest finds no outliers in uniform dataset', {
+  data = data.frame(Var1=runif(1000, 0, 100), Var2=runif(1000, 0, 100))
+  forest = iForest(data)
+  y = predict(forest, data)
+  expect_lt(var(y), 0.01)
 })
