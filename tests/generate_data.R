@@ -19,11 +19,6 @@ ggplot(data, aes(x = Var1, y = Var2)) +
 iforest = iForest(data)
 profvis(profile_predict_forest(iforest, data))
 
-
-cover = readMat('tests/data/cover.mat')
-X = as.data.frame(cover$X)
-y = cover$y
-
 f = iForest(data, ntree=100)
 y = predict(f, data)
 outlier = as.factor(ifelse(y >=0.50, "outlier", "normal"))
@@ -33,12 +28,15 @@ ggplot(data, aes(x = Var1, y = Var2, color = outlier)) +
   labs(x = "x", y = "y") +
   labs(alpha = "", colour="Legend")
 
+
 cover = R.matlab::readMat('tests/data/cover.mat')
 X = as.data.frame(cover$X)
 y = cover$y
 iforest = iForest(X)
 # ypred = predict(iforest, X)
 profvis(profile_predict_forest(iforest, X))
+yfac = factor(ifelse(ypred >= 0.56, 1, 0), levels=c(0, 1))
+print(caret::confusionMatrix(yfac, factor(y, levels=c(0, 1))))
 
 
 iso = isolationForest$new()
@@ -49,6 +47,6 @@ soltime = Sys.time()
 sol_pred = iso$predict(X)
 soltime = Sys.time() - soltime
 print(cat(glue::glue('Finished in {soltime}')))
-sol_fac = factor(ifelse(sol_pred$anomaly_score >= 0.5, 1, 0),
+sol_fac = factor(ifelse(sol_pred$anomaly_score >= 0.56, 1, 0),
                  levels = c(0, 1))
 print(caret::confusionMatrix(sol_fac, factor(y, levels=c(0, 1))))

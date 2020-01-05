@@ -2,38 +2,59 @@
 # iTree constructor and methods
 # =========================================================
 
+
+#' Create a new isolation tree based on input data X
+#'
+#' @param X matrix, input data
+#' @param height_limit integer, height limit to grow tree to. If not provided,
+#'     computed as specified in the paper
+#' @return isolation tree grown up to height limit
+#' @export
 iTree = function(X, height_limit=NULL) {
   if (any(is.na(X)))
     stop('input data contains NA values')
-  if (!all(sapply(X, is.numeric)))
-    stop('input data can only contain numeric values')
+  if (class(X) != 'matrix')
+    stop('input data must be a matrix')
 
-  t = new_itree(X)
-  return(t)
+  if (missing(height_limit))
+    height_limit = ceiling(log2(nrow(X)))
+  if (height_limit < 1)
+    stop('invalid height limit provided (must be >= 1)')
+
+  new_itree(X, height_limit)
 }
 
 
-#' Internal, unvalidated iTree constructor
+#' Internal iTree constructor
 #'
 #' Fits a new iTree to dataset X
-#' @param X input data.frame
+#' @param X matrix, input data
+#' @param height_limit integer, tree height limit
 #' @return new iTree
 new_itree = function(X, height_limit) {
-  if (missing(height_limit))
-    height_limit = ceiling(log2(nrow(X)))
   root = new_itree_node(X, height_limit, 0)
   t = list(root=root,
-           height_limit = height_limit)
+           height_limit = height_limit,
+           n_features = ncol(X))
   class(t) = 'iTree'
   return(t)
 }
 
 
+#' This function could be used to validate the tree's internal structure
+#' but is not currently used
 validate_itree = function() {
-  NULL
+  stop('Not implemented')
 }
 
 
+#' Internal constructor for itree node. Called recursively to build tree.
+#'
+#' @param X matrix, data for current node
+#' @param height_limit integer, max height of tree
+#' @param current_height integer, height of current node
+#' @param type internal or external (leaf) node
+#' @return new node
 new_itree_node = function(X,
                           height_limit,
                           current_height=0,
@@ -128,7 +149,6 @@ path_length_node = function(root, data, cur_length = 0) {
   }
 
   # base case: external node
-  # TODO: $ referencing slow, needs optimizing
   if (root[['node_type']] == 'external') {
     return(cur_length + avg_path_length(root$n_components))
   }
@@ -143,6 +163,6 @@ path_length_node = function(root, data, cur_length = 0) {
 
 
 print.iTree = function(tree) {
-  txt = glue::glue('an iTree')
+  txt = glue::glue('an iTree with {itree$n_features} features')
   cat(txt)
 }

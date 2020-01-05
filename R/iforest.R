@@ -1,19 +1,28 @@
-# =========================================================
-# iForest constructor and methods
-# =========================================================
-
 #' Implement isolation forest algorithm described in Liu, Ting, and Zhou (2008)
 #'
 #' @name iForest
 #' @description Implement isolation forest by Liu, Ting, and Zhou.
+
+
+#' Create an isolation forest
+#'
+#' @param X matrix, sample data
+#' @param ntree integer, number of trees in forest
+#' @param max_samples integer, max sub-samples for each tree
+#' @return fully grown isolation forest
+#' @export
 iForest = function(X,
                    ntree = 100,
                    max_samples = 256)
 {
   if (class(X) != 'matrix')
     X = as.matrix(X)
-  if (nrow(X) < 256)
+  if (!all(apply(X, 2, is.numeric)))
+    stop('X must be a numeric matrix')
+  if (nrow(X) < max_samples)
     max_samples = nrow(X)
+  if (max_samples < 2)
+    stop('max_samples must be >= 2')
 
   forest = lapply(1:ntree, function(.) {
     # shuffle and sample
@@ -30,16 +39,6 @@ iForest = function(X,
 
   class(ifor) = 'iForest'
   return(ifor)
-}
-
-
-new_iforest = function() {
-  NULL
-}
-
-
-validate_iforest = function() {
-  NULL
 }
 
 
